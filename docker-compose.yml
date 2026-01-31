@@ -1,0 +1,52 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: prova-fullstack-app
+    container_name: prova-fullstack-app
+    restart: always
+    volumes:
+      - ./:/var/www
+    ports:
+      - "9000:9000"
+      - "5173:5173"
+    depends_on:
+      - db
+    networks:
+      - prova-fullstack
+
+  web:
+    image: nginx:alpine
+    container_name: prova-fullstack-nginx
+    ports:
+      - "8000:80"
+    volumes:
+      - ./:/var/www
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - prova-fullstack
+
+  db:
+    image: mysql:8.0
+    container_name: prova-fullstack-mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: prova_fullstack
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_USER: prova_user
+      MYSQL_PASSWORD: secret
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - prova-fullstack
+
+networks:
+  prova-fullstack:
+
+volumes:
+  mysql_data:
